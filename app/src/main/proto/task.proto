@@ -1,0 +1,17 @@
+syntax = "proto3";
+
+option java_package = "io.github.com.ice909.android.todo";
+option java_multiple_files = true;
+
+message TaskProto {
+  string id = 1;
+  string title = 2;
+  string content = 3;
+  string parentId = 4;
+  int32 sortOrder = 5;
+  bool completed = 6;
+}
+
+message TaskListProto {
+  repeated TaskProto tasks = 1;
+}
