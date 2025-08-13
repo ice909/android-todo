@@ -1,6 +1,7 @@
 package io.github.com.ice909.android.todo.pages
 
 import android.annotation.SuppressLint
+import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -36,15 +37,22 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import io.github.com.ice909.android.todo.model.Task
 import io.github.com.ice909.android.todo.ui.components.Chip
 import io.github.com.ice909.android.todo.ui.components.CustomCheckbox
 import io.github.com.ice909.android.todo.viewmodel.TodoViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -55,6 +63,9 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
     val sheetState = rememberModalBottomSheetState()
 
     var newTitle by remember { mutableStateOf("") }
+
+    val coroutineScope = rememberCoroutineScope()
+
     Scaffold(floatingActionButton = {
         FloatingActionButton(onClick = { showSheet = true }) {
             Icon(Icons.Default.Add, contentDescription = "add")
@@ -95,7 +106,9 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
     }
     if (showSheet) {
         ModalBottomSheet(
-            onDismissRequest = { showSheet = false },
+            onDismissRequest = {
+                showSheet = false
+            },
             sheetState = sheetState
         ) {
             Column(Modifier.padding(top = 0.dp, bottom = 24.dp, start = 24.dp, end = 24.dp)) {
@@ -125,7 +138,12 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
                 Spacer(Modifier.height(20.dp))
                 Row {
                     OutlinedButton(
-                        onClick = { showSheet = false },
+                        onClick = {
+                            coroutineScope.launch {
+                                sheetState.hide()
+                                showSheet = false
+                            }
+                        },
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxWidth()
@@ -145,7 +163,10 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
                                     )
                                 )
                                 newTitle = ""
-                                showSheet = false
+                                coroutineScope.launch {
+                                    sheetState.hide()
+                                    showSheet = false
+                                }
                             }
                         },
                         modifier = Modifier
