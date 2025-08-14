@@ -58,6 +58,10 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
     val activeCount by viewModel.activeCount.collectAsState()
     val completedCount by viewModel.completedCount.collectAsState()
     val importantCount by viewModel.importantCount.collectAsState()
+    val activeTasks = remember(todos) { todos.filter { !it.completed } }
+    val completedTasks = remember(todos) { todos.filter { it.completed } }
+
+
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
@@ -93,8 +97,17 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
                 DividerDefaults.Thickness,
                 color = Color(0x1A000000)
             )
+            LazyColumn {
+                items(activeTasks) { item ->
+                    TaskItem(
+                        item,
+                        viewModel
+                    )
+                }
+            }
+            Text("已完成", modifier = Modifier.padding(16.dp))
             LazyColumn(contentPadding = PaddingValues(bottom = 80.dp)) {
-                items(todos) { item ->
+                items(completedTasks) { item ->
                     TaskItem(
                         item,
                         viewModel
@@ -183,7 +196,7 @@ fun TaskItem(task: Task, viewModel: TodoViewModel, modifier: Modifier = Modifier
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .padding(horizontal = 16.dp)
+            .padding(horizontal = 8.dp)
     ) {
 
         Row(
