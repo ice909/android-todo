@@ -1,7 +1,6 @@
 package io.github.com.ice909.android.todo.pages
 
 import android.annotation.SuppressLint
-import android.view.inputmethod.InputMethodManager
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -41,17 +40,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import io.github.com.ice909.android.todo.model.Task
 import io.github.com.ice909.android.todo.ui.components.Chip
 import io.github.com.ice909.android.todo.ui.components.CustomCheckbox
 import io.github.com.ice909.android.todo.viewmodel.TodoViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -59,6 +53,9 @@ import kotlinx.coroutines.launch
 @Composable
 fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
     val todos by viewModel.todoList.collectAsState()
+    val activeCount by viewModel.activeCount.collectAsState()
+    val completedCount by viewModel.completedCount.collectAsState()
+    val importantCount by viewModel.importantCount.collectAsState()
     var showSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState()
 
@@ -81,12 +78,12 @@ fun MainScreen(viewModel: TodoViewModel, onDebugClick: () -> Unit = {}) {
                     .clickable(onClick = onDebugClick)
             )
             Row(Modifier.padding(horizontal = 16.dp, vertical = 4.dp)) {
-                Text("10 待完成", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("$activeCount 待完成", color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Spacer(Modifier.width(8.dp))
-                Text("2 已完成", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text("$completedCount 已完成", color = MaterialTheme.colorScheme.onSurfaceVariant)
             }
             Chip(
-                text = "3 个重要任务",
+                text = "$importantCount 个重要任务",
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp)
             )
             HorizontalDivider(
